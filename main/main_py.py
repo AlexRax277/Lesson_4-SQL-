@@ -35,12 +35,15 @@ def data_insert(data):
                 and year_album = '{year_album}'""").fetchone() is None:
             connection.execute(f"""INSERT INTO album (name_album, year_album) VALUES ('{album}', '{year_album}')""")
 
-        try:
+        if connection.execute(f"""SELECT album_id FROM executor_album 
+                                  WHERE album_id = (SELECT id FROM album 
+                                  WHERE name_album = '{album}'
+                                  and year_album = '{year_album}')""").fetchone() is None:
             connection.execute(f"""INSERT INTO executor_album (executor_id, album_id)
                                select(SELECT id FROM executor WHERE name_executor = '{executor}') as executor_id,
-                               (SELECT id FROM album WHERE name_album = '{album}') as album_id""")
-        except:
-            pass
+                               (SELECT id FROM album WHERE name_album = '{album}'
+                               and year_album = '{year_album}') as album_id""")
+
 
         song = string[2]
         duration = string[3]
